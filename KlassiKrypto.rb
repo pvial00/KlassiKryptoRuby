@@ -194,3 +194,84 @@ class Chaocipher
         return cipher_text.join("")
     end	
 end
+class Caesar
+    def initialize(rot=3)
+        @@rot = rot
+    end
+    def encrypt(text)
+        cipher_text = Array.new
+	text.each_byte { |char|
+	    num = char - 65
+	    sub = (num + @@rot) % 26
+	    cipher_text.push((sub + 65).chr)
+	}
+	return cipher_text.join("")
+    end
+    def decrypt(text)
+        cipher_text = Array.new
+	text.each_byte { |char|
+	    num = char - 65
+	    sub = (num - @@rot) % 26
+	    cipher_text.push((sub + 65).chr)
+	}
+	return cipher_text.join("")
+    end
+end
+class Polybius
+    @@square = Array.new
+    @@squarer = Array.new
+    def initialize(size=5, alphabet=[])
+	if alphabet.length == 0
+	    schar = 65
+	    for x in 0..25
+	        alphabet.push((x + schar).chr)
+	    end
+	end
+	c = 0
+	schar = 65
+	for x in 1..size
+	    row = Hash.new
+	    rrow = Hash.new
+	    for y in 1..size
+	        row[y] = alphabet[c]
+		rrow[alphabet[c]] = y
+		c += 1
+		schar += 1
+	    end
+	    @@square.push(row)
+	    @@squarer.push(rrow)
+	end
+    end
+    def getposition(letter)
+        c = 1
+	p = ""
+	@@squarer.each { |row|
+	    if row.include? letter
+		p += c.to_s
+		p += row[letter].to_s
+	    end
+	    c += 1
+	}
+        return p
+    end
+    def getletter(pos)
+        row = @@square[(pos[0].to_i - 1)]
+	letter = row[pos[1].to_i]
+	return letter
+    end
+    def encrypt(data)
+        cipher_text = Array.new
+	for c in 0..(data.length - 1)
+	    cipher_text.push(getposition(data[c]))
+	end
+        return cipher_text.join(" ")
+    end
+    def decrypt(data)
+        cipher_text = Array.new
+	d = data.split
+	for c in 0..(d.length - 1)
+	    cipher_text.push(getletter(d[c]))
+	end
+        return cipher_text.join("")
+    end
+end
